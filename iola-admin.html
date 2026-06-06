@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>iola fitness — 管理画面</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Noto+Sans+JP:wght@200;300;400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+:root {
+  --bg:#F8F5F0; --white:#FFFFFF; --black:#1A1410;
+  --terra:#8B4A2E; --terra-soft:#C4896A;
+  --green:#2E7D6B; --green-soft:#E0F0EC;
+  --gray-1:#E8E2DA; --gray-2:#D0C8BC; --gray-3:#A89880; --gray-4:#706050;
+  --text:#2A2018; --text-sub:#7A6A58;
+  --red:#C0392B; --red-soft:#FDECEA;
+  --yellow:#E67E22; --yellow-soft:#FEF3E2;
+}
+body { background:var(--bg); color:var(--text); font-family:'Noto Sans JP',sans-serif; font-weight:300; min-height:100vh; }
+
+/* ── HEADER ── */
+.header { position:sticky; top:0; background:var(--black); height:52px; display:flex; align-items:center; justify-content:space-between; padding:0 16px; z-index:100; }
+.header-logo { font-family:'Cormorant Garamond',serif; font-size:18px; font-weight:300; letter-spacing:.2em; color:var(--white); }
+.header-badge { font-size:10px; letter-spacing:.2em; color:var(--terra-soft); text-transform:uppercase; }
+.logout-btn { font-size:11px; color:var(--gray-3); cursor:pointer; letter-spacing:.1em; background:none; border:none; font-family:'Noto Sans JP',sans-serif; }
+
+/* ── LOGIN ── */
+.login-screen { min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px 24px; }
+.login-logo { font-family:'Cormorant Garamond',serif; font-size:28px; font-weight:300; letter-spacing:.28em; color:var(--black); margin-bottom:6px; }
+.login-sub { font-size:10px; letter-spacing:.3em; color:var(--terra); text-transform:uppercase; margin-bottom:40px; }
+.login-box { width:100%; max-width:360px; background:var(--white); border:1px solid var(--gray-1); padding:28px 24px; }
+.login-label { display:block; font-size:10px; letter-spacing:.22em; color:var(--text-sub); margin-bottom:8px; text-transform:uppercase; }
+.login-input { width:100%; border:none; border-bottom:1px solid var(--gray-2); background:transparent; padding:10px 0; font-size:15px; color:var(--text); font-family:'Noto Sans JP',sans-serif; font-weight:300; outline:none; -webkit-appearance:none; border-radius:0; margin-bottom:20px; }
+.login-input:focus { border-bottom-color:var(--terra); }
+.login-btn { width:100%; background:var(--black); color:var(--white); border:none; padding:16px; font-size:11px; letter-spacing:.3em; font-family:'Noto Sans JP',sans-serif; font-weight:300; cursor:pointer; }
+.login-btn:active { background:var(--terra); }
+.login-err { font-size:12px; color:var(--red); margin-top:12px; text-align:center; display:none; }
+
+/* ── MAIN ── */
+.main { display:none; padding:0 0 80px; }
+
+/* ── TABS ── */
+.tabs { display:flex; background:var(--white); border-bottom:1px solid var(--gray-1); position:sticky; top:52px; z-index:99; }
+.tab { flex:1; padding:14px 4px; text-align:center; font-size:11px; letter-spacing:.12em; color:var(--text-sub); cursor:pointer; border-bottom:2px solid transparent; transition:all .2s; }
+.tab.active { color:var(--terra); border-bottom-color:var(--terra); }
+
+/* ── STATS ── */
+.stats-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; padding:14px; }
+.stat-card { background:var(--white); border:1px solid var(--gray-1); padding:16px; text-align:center; }
+.stat-num { font-family:'Cormorant Garamond',serif; font-size:32px; font-weight:300; color:var(--terra); line-height:1; margin-bottom:4px; }
+.stat-label { font-size:10px; letter-spacing:.15em; color:var(--text-sub); }
+
+/* ── SEARCH/FILTER ── */
+.filter-bar { padding:12px 14px; background:var(--white); border-bottom:1px solid var(--gray-1); display:flex; gap:8px; flex-wrap:wrap; }
+.filter-input { flex:1; min-width:120px; border:1px solid var(--gray-1); background:var(--bg); padding:8px 12px; font-size:13px; color:var(--text); font-family:'Noto Sans JP',sans-serif; font-weight:300; outline:none; -webkit-appearance:none; border-radius:0; }
+.filter-input:focus { border-color:var(--terra); }
+.filter-select { border:1px solid var(--gray-1); background:var(--bg); padding:8px 10px; font-size:12px; color:var(--text); font-family:'Noto Sans JP',sans-serif; outline:none; -webkit-appearance:none; border-radius:0; }
+.search-btn-sm { background:var(--black); color:var(--white); border:none; padding:8px 16px; font-size:11px; letter-spacing:.15em; font-family:'Noto Sans JP',sans-serif; cursor:pointer; white-space:nowrap; }
+
+/* ── RESERVATION LIST ── */
+.res-list { padding:10px 14px; }
+.res-card { background:var(--white); border:1px solid var(--gray-1); margin-bottom:10px; overflow:hidden; }
+.res-card-head { padding:12px 14px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; }
+.res-card-left { flex:1; }
+.res-name { font-size:14px; font-weight:400; color:var(--text); margin-bottom:3px; }
+.res-meta { font-size:11px; color:var(--text-sub); letter-spacing:.06em; }
+.status-badge { font-size:10px; letter-spacing:.12em; padding:3px 8px; white-space:nowrap; }
+.status-confirmed { background:var(--green-soft); color:var(--green); }
+.status-cancelled { background:var(--gray-1); color:var(--gray-4); }
+.status-done { background:#EEF; color:#449; }
+.res-card-body { display:none; border-top:1px solid var(--gray-1); padding:14px; }
+.res-card-body.open { display:block; }
+.res-row { display:flex; justify-content:space-between; padding:7px 0; border-bottom:1px solid var(--gray-1); gap:10px; }
+.res-row:last-child { border-bottom:none; }
+.res-key { font-size:10px; letter-spacing:.15em; color:var(--text-sub); flex-shrink:0; text-transform:uppercase; }
+.res-val { font-size:13px; color:var(--text); text-align:right; word-break:break-all; }
+.res-actions { display:flex; gap:8px; margin-top:14px; flex-wrap:wrap; }
+.act-btn { flex:1; min-width:80px; padding:10px 8px; font-size:11px; letter-spacing:.12em; font-family:'Noto Sans JP',sans-serif; font-weight:300; cursor:pointer; border:1px solid var(--gray-2); background:var(--white); color:var(--text); transition:all .15s; }
+.act-btn.green { border-color:var(--green); color:var(--green); }
+.act-btn.red { border-color:var(--red); color:var(--red); }
+.act-btn.terra { border-color:var(--terra); color:var(--terra); }
+.act-btn:active { opacity:.7; }
+
+/* ── ADD/EDIT FORM ── */
+.form-screen { display:none; padding:16px 14px; }
+.form-screen.show { display:block; }
+.form-title { font-family:'Cormorant Garamond',serif; font-size:22px; font-weight:300; color:var(--black); letter-spacing:.06em; margin-bottom:20px; }
+.form-group { margin-bottom:16px; }
+.form-label { display:block; font-size:10px; letter-spacing:.22em; color:var(--terra); text-transform:uppercase; margin-bottom:7px; }
+.form-input { width:100%; border:none; border-bottom:1px solid var(--gray-2); background:transparent; padding:10px 0; font-size:14px; color:var(--text); font-family:'Noto Sans JP',sans-serif; font-weight:300; outline:none; -webkit-appearance:none; border-radius:0; transition:border-color .2s; }
+.form-input:focus { border-bottom-color:var(--terra); }
+.form-select { width:100%; border:none; border-bottom:1px solid var(--gray-2); background:transparent; padding:10px 0; font-size:14px; color:var(--text); font-family:'Noto Sans JP',sans-serif; font-weight:300; outline:none; -webkit-appearance:none; border-radius:0; }
+.form-select:focus { border-bottom-color:var(--terra); }
+textarea.form-input { resize:none; height:80px; line-height:1.8; }
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.form-submit { width:100%; background:var(--black); color:var(--white); border:none; padding:16px; font-size:11px; letter-spacing:.3em; font-family:'Noto Sans JP',sans-serif; font-weight:300; cursor:pointer; margin-top:8px; }
+.form-cancel { width:100%; background:var(--white); color:var(--text-sub); border:1px solid var(--gray-2); padding:14px; font-size:11px; letter-spacing:.2em; font-family:'Noto Sans JP',sans-serif; font-weight:300; cursor:pointer; margin-top:8px; }
+
+/* ── BOTTOM BTN ── */
+.fab { position:fixed; bottom:24px; right:20px; width:52px; height:52px; background:var(--terra); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:24px; color:var(--white); cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,.2); border:none; z-index:99; }
+
+/* ── TOAST ── */
+.toast { position:fixed; bottom:80px; left:50%; transform:translateX(-50%); background:var(--black); color:var(--white); padding:12px 24px; font-size:12px; letter-spacing:.1em; border-radius:2px; display:none; z-index:200; white-space:nowrap; }
+.toast.show { display:block; animation:fadeToast .3s ease; }
+@keyframes fadeToast { from{opacity:0;transform:translateX(-50%) translateY(10px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
+
+/* ── CONFIRM ── */
+.overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:200; align-items:flex-end; }
+.overlay.show { display:flex; }
+.sheet { background:var(--white); padding:28px 20px 40px; width:100%; }
+.sheet-title { font-family:'Cormorant Garamond',serif; font-size:20px; font-weight:300; color:var(--black); margin-bottom:10px; }
+.sheet-text { font-size:13px; color:var(--text-sub); line-height:1.9; margin-bottom:20px; }
+.sheet-actions { display:flex; gap:10px; }
+.sheet-yes { flex:1; background:var(--red); color:var(--white); border:none; padding:14px; font-size:11px; letter-spacing:.2em; font-family:'Noto Sans JP',sans-serif; cursor:pointer; }
+.sheet-no { flex:1; background:var(--white); color:var(--text); border:1px solid var(--gray-2); padding:14px; font-size:11px; letter-spacing:.2em; font-family:'Noto Sans JP',sans-serif; cursor:pointer; }
+
+.empty { text-align:center; padding:40px 20px; color:var(--text-sub); font-size:13px; letter-spacing:.08em; }
+.loading { text-align:center; padding:40px; color:var(--text-sub); font-size:12px; letter-spacing:.15em; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen" style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; padding:40px 24px; background:var(--bg);">
+  <div class="login-logo">iola fitness</div>
+  <div class="login-sub">Staff Admin</div>
+  <div class="login-box">
+    <label class="login-label">パスワード</label>
+    <input type="password" class="login-input" id="pwInput" placeholder="••••••••" onkeydown="if(event.key==='Enter')login()">
+    <button class="login-btn" onclick="login()">ログ イ ン</button>
+    <div class="login-err" id="loginErr">パスワードが違います</div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<div class="header" id="appHeader" style="display:none;">
+  <div>
+    <div class="header-logo">iola fitness</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:16px;">
+    <div class="header-badge">Admin</div>
+    <button class="logout-btn" onclick="logout()">ログアウト</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main" id="mainApp">
+
+  <!-- TABS -->
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('list')" id="tab-list">予約一覧</div>
+    <div class="tab" onclick="switchTab('add')" id="tab-add">予約追加</div>
+    <div class="tab" onclick="switchTab('stats')" id="tab-stats">集計</div>
+  </div>
+
+  <!-- LIST TAB -->
+  <div id="tab-content-list">
+    <div class="filter-bar">
+      <input type="text" class="filter-input" id="filterText" placeholder="名前・予約番号・メニューで検索">
+      <select class="filter-select" id="filterStatus">
+        <option value="">全ステータス</option>
+        <option value="確定">確定</option>
+        <option value="キャンセル">キャンセル</option>
+        <option value="完了">完了</option>
+      </select>
+      <button class="search-btn-sm" onclick="loadReservations()">検索</button>
+    </div>
+    <div class="res-list" id="resList">
+      <div class="loading">読み込み中...</div>
+    </div>
+  </div>
+
+  <!-- ADD TAB -->
+  <div id="tab-content-add" style="display:none;">
+    <div class="form-screen show" id="addForm">
+      <div class="form-title" id="formTitle">予約を追加</div>
+      <input type="hidden" id="editBookingId">
+
+      <div class="form-group">
+        <label class="form-label">予約種別</label>
+        <select class="form-select" id="fType">
+          <option value="trial">体験セッション</option>
+          <option value="regular">通常予約</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">メニュー</label>
+        <input type="text" class="form-input" id="fMenu" placeholder="パーソナルトレーニング など">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">日程</label>
+          <input type="date" class="form-input" id="fDate">
+        </div>
+        <div class="form-group">
+          <label class="form-label">時間</label>
+          <input type="time" class="form-input" id="fTime">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">セッション時間</label>
+          <select class="form-select" id="fDuration">
+            <option value="60分">60分</option>
+            <option value="30分">30分</option>
+            <option value="90分">90分</option>
+            <option value="120分">120分</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">オプション</label>
+          <input type="text" class="form-input" id="fExt" placeholder="なし">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">お名前</label>
+        <input type="text" class="form-input" id="fName" placeholder="山田 花子">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">電話番号</label>
+          <input type="tel" class="form-input" id="fPhone" placeholder="090-0000-0000">
+        </div>
+        <div class="form-group">
+          <label class="form-label">メール</label>
+          <input type="email" class="form-input" id="fEmail" placeholder="example@email.com">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">場所</label>
+        <input type="text" class="form-input" id="fLocation" placeholder="出張 / レンタルスタジオ等">
+      </div>
+      <div class="form-group">
+        <label class="form-label">住所・施設</label>
+        <input type="text" class="form-input" id="fAddress" placeholder="住所または施設名">
+      </div>
+      <div class="form-group">
+        <label class="form-label">ステータス</label>
+        <select class="form-select" id="fStatus">
+          <option value="確定">確定</option>
+          <option value="完了">完了</option>
+          <option value="キャンセル">キャンセル</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">ご要望・メモ</label>
+        <textarea class="form-input" id="fMessage" placeholder="メモがあれば"></textarea>
+      </div>
+
+      <button class="form-submit" onclick="submitForm()">保 存 す る</button>
+      <button class="form-cancel" id="cancelEditBtn" onclick="cancelEdit()" style="display:none;">キャンセル</button>
+    </div>
+  </div>
+
+  <!-- STATS TAB -->
+  <div id="tab-content-stats" style="display:none;">
+    <div class="stats-grid" id="statsGrid">
+      <div class="loading" style="grid-column:span 2">読み込み中...</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- DELETE CONFIRM -->
+<div class="overlay" id="deleteOverlay">
+  <div class="sheet">
+    <div class="sheet-title">予約を削除</div>
+    <div class="sheet-text">この予約を完全に削除します。<br>この操作は取り消せません。</div>
+    <div class="sheet-actions">
+      <button class="sheet-yes" onclick="executeDelete()">削 除 す る</button>
+      <button class="sheet-no" onclick="closeOverlay()">戻 る</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbwc6LpNPIkZKOcg-0YeX3a986B31qJ28nbnF5Bd369aGS0TZXSnTsvPYc9tlDE3p4me/exec';
+const ADMIN_PASSWORD = 'iola2024';  // ← パスワードはここで変更できます
+const SECRET_PATH = 'admin';        // ← URLに ?key=admin でもアクセス可能
+
+let allReservations = [];
+let deleteTarget = null;
+let isEditing = false;
+
+// ── AUTH ──
+function checkAutoLogin() {
+  const params = new URLSearchParams(location.search);
+  if (params.get('key') === SECRET_PATH) { showApp(); return; }
+  if (sessionStorage.getItem('iola_admin') === '1') { showApp(); return; }
+}
+
+function login() {
+  const pw = document.getElementById('pwInput').value;
+  if (pw === ADMIN_PASSWORD) {
+    sessionStorage.setItem('iola_admin', '1');
+    showApp();
+  } else {
+    document.getElementById('loginErr').style.display = 'block';
+  }
+}
+
+function logout() {
+  sessionStorage.removeItem('iola_admin');
+  location.reload();
+}
+
+function showApp() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('appHeader').style.display = 'flex';
+  document.getElementById('mainApp').style.display = 'block';
+  loadReservations();
+}
+
+// ── TABS ──
+function switchTab(tab) {
+  ['list','add','stats'].forEach(t => {
+    document.getElementById(`tab-${t}`).classList.toggle('active', t === tab);
+    document.getElementById(`tab-content-${t}`).style.display = t === tab ? 'block' : 'none';
+  });
+  if (tab === 'stats') renderStats();
+  if (tab === 'list') loadReservations();
+}
+
+// ── LOAD ──
+async function loadReservations() {
+  document.getElementById('resList').innerHTML = '<div class="loading">読み込み中...</div>';
+  try {
+    const res = await fetch(`${GAS_URL}?action=getAll`);
+    const data = await res.json();
+    allReservations = data.reservations || [];
+    renderList();
+  } catch(e) {
+    document.getElementById('resList').innerHTML = '<div class="empty">データの取得に失敗しました。</div>';
+  }
+}
+
+function renderList() {
+  const text = document.getElementById('filterText').value.toLowerCase();
+  const status = document.getElementById('filterStatus').value;
+
+  const filtered = allReservations.filter(r => {
+    const matchText = !text ||
+      (r.name || '').toLowerCase().includes(text) ||
+      (r.bookingId || '').toLowerCase().includes(text) ||
+      (r.menu || '').toLowerCase().includes(text) ||
+      (r.phone || '').includes(text);
+    const matchStatus = !status || r.status === status;
+    return matchText && matchStatus;
+  });
+
+  const list = document.getElementById('resList');
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="empty">予約が見つかりません</div>';
+    return;
+  }
+
+  // 日付降順でソート
+  filtered.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+  list.innerHTML = filtered.map((r, i) => {
+    const statusClass = r.status === 'キャンセル' ? 'status-cancelled' : r.status === '完了' ? 'status-done' : 'status-confirmed';
+    const statusLabel = r.status || '確定';
+    return `
+    <div class="res-card">
+      <div class="res-card-head" onclick="toggleCard(${i})">
+        <div class="res-card-left">
+          <div class="res-name">${r.name || '—'}</div>
+          <div class="res-meta">${r.date || '—'}　${r.time || '—'}　${r.menu || '体験'}</div>
+        </div>
+        <span class="status-badge ${statusClass}">${statusLabel}</span>
+      </div>
+      <div class="res-card-body" id="card-${i}">
+        <div class="res-row"><span class="res-key">予約番号</span><span class="res-val">${r.bookingId || '—'}</span></div>
+        <div class="res-row"><span class="res-key">種別</span><span class="res-val">${r.type === 'trial' ? '体験' : '通常'}</span></div>
+        <div class="res-row"><span class="res-key">メニュー</span><span class="res-val">${r.menu || '—'}</span></div>
+        <div class="res-row"><span class="res-key">時間</span><span class="res-val">${r.duration || '60分'}</span></div>
+        <div class="res-row"><span class="res-key">オプション</span><span class="res-val">${r.ext || 'なし'}</span></div>
+        <div class="res-row"><span class="res-key">日程</span><span class="res-val">${r.date || '—'}</span></div>
+        <div class="res-row"><span class="res-key">時間</span><span class="res-val">${r.time || '—'}</span></div>
+        <div class="res-row"><span class="res-key">電話</span><span class="res-val">${r.phone || '—'}</span></div>
+        <div class="res-row"><span class="res-key">メール</span><span class="res-val">${r.email || '—'}</span></div>
+        <div class="res-row"><span class="res-key">場所</span><span class="res-val">${r.location || '—'}</span></div>
+        ${r.address ? `<div class="res-row"><span class="res-key">住所</span><span class="res-val">${r.address}</span></div>` : ''}
+        ${r.message ? `<div class="res-row"><span class="res-key">メモ</span><span class="res-val">${r.message}</span></div>` : ''}
+        <div class="res-actions">
+          ${r.status !== '完了' ? `<button class="act-btn green" onclick="changeStatus('${r.bookingId}','完了')">完了</button>` : ''}
+          ${r.status === '確定' ? `<button class="act-btn terra" onclick="changeStatus('${r.bookingId}','キャンセル')">キャンセル</button>` : ''}
+          ${r.status === 'キャンセル' ? `<button class="act-btn green" onclick="changeStatus('${r.bookingId}','確定')">確定に戻す</button>` : ''}
+          <button class="act-btn" onclick="editReservation('${r.bookingId}')">編集</button>
+          <button class="act-btn red" onclick="confirmDelete('${r.bookingId}')">削除</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleCard(i) {
+  const body = document.getElementById(`card-${i}`);
+  body.classList.toggle('open');
+}
+
+// ── STATUS CHANGE ──
+async function changeStatus(bookingId, newStatus) {
+  try {
+    await fetch(GAS_URL, {
+      method:'POST', mode:'no-cors',
+      headers:{'Content-Type':'text/plain'},
+      body: JSON.stringify({ action:'updateStatus', bookingId, status: newStatus }),
+    });
+    const r = allReservations.find(r => r.bookingId === bookingId);
+    if (r) r.status = newStatus;
+    renderList();
+    showToast(`ステータスを「${newStatus}」に変更しました`);
+  } catch(e) {
+    showToast('エラーが発生しました');
+  }
+}
+
+// ── EDIT ──
+function editReservation(bookingId) {
+  const r = allReservations.find(r => r.bookingId === bookingId);
+  if (!r) return;
+  isEditing = true;
+  document.getElementById('formTitle').textContent = '予約を編集';
+  document.getElementById('editBookingId').value = bookingId;
+  document.getElementById('fType').value = r.type || 'trial';
+  document.getElementById('fMenu').value = r.menu || '';
+  document.getElementById('fDate').value = r.dateRaw || '';
+  document.getElementById('fTime').value = r.timeRaw || '';
+  document.getElementById('fDuration').value = r.duration || '60分';
+  document.getElementById('fExt').value = r.ext || '';
+  document.getElementById('fName').value = r.name || '';
+  document.getElementById('fPhone').value = r.phone || '';
+  document.getElementById('fEmail').value = r.email || '';
+  document.getElementById('fLocation').value = r.location || '';
+  document.getElementById('fAddress').value = r.address || '';
+  document.getElementById('fStatus').value = r.status || '確定';
+  document.getElementById('fMessage').value = r.message || '';
+  document.getElementById('cancelEditBtn').style.display = 'block';
+  switchTab('add');
+  window.scrollTo(0,0);
+}
+
+function cancelEdit() {
+  isEditing = false;
+  document.getElementById('formTitle').textContent = '予約を追加';
+  document.getElementById('editBookingId').value = '';
+  document.getElementById('cancelEditBtn').style.display = 'none';
+  clearForm();
+  switchTab('list');
+}
+
+function clearForm() {
+  ['fMenu','fName','fPhone','fEmail','fLocation','fAddress','fMessage','fExt'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('fType').value = 'trial';
+  document.getElementById('fDuration').value = '60分';
+  document.getElementById('fStatus').value = '確定';
+  document.getElementById('fDate').value = '';
+  document.getElementById('fTime').value = '';
+}
+
+// ── SUBMIT ──
+async function submitForm() {
+  const name = document.getElementById('fName').value.trim();
+  if (!name) { alert('お名前を入力してください。'); return; }
+
+  const bookingId = document.getElementById('editBookingId').value;
+  const dateVal = document.getElementById('fDate').value;
+  const timeVal = document.getElementById('fTime').value;
+
+  // 日付をフォーマット
+  let dateStr = dateVal;
+  if (dateVal) {
+    const d = new Date(dateVal);
+    const days = ['日','月','火','水','木','金','土'];
+    dateStr = `${d.getFullYear()}年 ${d.getMonth()+1}月 ${d.getDate()}日（${days[d.getDay()]}）`;
+  }
+
+  const data = {
+    action: bookingId ? 'update' : 'add',
+    bookingId: bookingId || null,
+    type: document.getElementById('fType').value,
+    menu: document.getElementById('fMenu').value.trim(),
+    date: dateStr,
+    dateRaw: dateVal,
+    time: timeVal,
+    timeRaw: timeVal,
+    duration: document.getElementById('fDuration').value,
+    ext: document.getElementById('fExt').value.trim() || 'なし',
+    name: name,
+    phone: document.getElementById('fPhone').value.trim(),
+    email: document.getElementById('fEmail').value.trim(),
+    location: document.getElementById('fLocation').value.trim(),
+    address: document.getElementById('fAddress').value.trim(),
+    status: document.getElementById('fStatus').value,
+    message: document.getElementById('fMessage').value.trim(),
+  };
+
+  const btn = document.querySelector('.form-submit');
+  btn.textContent = '保存中…'; btn.disabled = true;
+
+  try {
+    await fetch(GAS_URL, {
+      method:'POST', mode:'no-cors',
+      headers:{'Content-Type':'text/plain'},
+      body: JSON.stringify(data),
+    });
+    showToast(bookingId ? '予約を更新しました' : '予約を追加しました');
+    clearForm();
+    isEditing = false;
+    document.getElementById('editBookingId').value = '';
+    document.getElementById('formTitle').textContent = '予約を追加';
+    document.getElementById('cancelEditBtn').style.display = 'none';
+    setTimeout(() => { switchTab('list'); }, 500);
+  } catch(e) {
+    showToast('エラーが発生しました');
+  } finally {
+    btn.textContent = '保 存 す る'; btn.disabled = false;
+  }
+}
+
+// ── DELETE ──
+function confirmDelete(bookingId) {
+  deleteTarget = bookingId;
+  document.getElementById('deleteOverlay').classList.add('show');
+}
+
+async function executeDelete() {
+  closeOverlay();
+  try {
+    await fetch(GAS_URL, {
+      method:'POST', mode:'no-cors',
+      headers:{'Content-Type':'text/plain'},
+      body: JSON.stringify({ action:'delete', bookingId: deleteTarget }),
+    });
+    allReservations = allReservations.filter(r => r.bookingId !== deleteTarget);
+    renderList();
+    showToast('予約を削除しました');
+  } catch(e) {
+    showToast('エラーが発生しました');
+  }
+  deleteTarget = null;
+}
+
+function closeOverlay() {
+  document.getElementById('deleteOverlay').classList.remove('show');
+}
+
+// ── STATS ──
+function renderStats() {
+  const total = allReservations.length;
+  const confirmed = allReservations.filter(r => r.status === '確定').length;
+  const done = allReservations.filter(r => r.status === '完了').length;
+  const cancelled = allReservations.filter(r => r.status === 'キャンセル').length;
+  const trial = allReservations.filter(r => r.type === 'trial').length;
+  const regular = allReservations.filter(r => r.type === 'regular').length;
+
+  document.getElementById('statsGrid').innerHTML = `
+    <div class="stat-card"><div class="stat-num">${total}</div><div class="stat-label">総予約数</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--green)">${confirmed}</div><div class="stat-label">確定中</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:#449">${done}</div><div class="stat-label">完了</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--gray-3)">${cancelled}</div><div class="stat-label">キャンセル</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--terra)">${trial}</div><div class="stat-label">体験予約</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--black)">${regular}</div><div class="stat-label">通常予約</div></div>
+  `;
+}
+
+// ── TOAST ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── INIT ──
+checkAutoLogin();
+</script>
+</body>
+</html>
