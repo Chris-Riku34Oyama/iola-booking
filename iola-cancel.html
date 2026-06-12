@@ -275,7 +275,6 @@ async function executeCancell() {
     await fetch(GAS_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain' },
-      mode: 'no-cors',
       body: JSON.stringify({ action: 'cancel', bookingId: currentCancelId }),
     });
     show('cancelSuccess');
