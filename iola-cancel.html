@@ -250,8 +250,7 @@ function renderResults(reservations) {
         <span class="result-key">Name</span>
         <span class="result-val">${r.name || '—'}</span>
       </div>
-      ${!isCancelled ? `<button class="cancel-btn" onclick="confirmCancel('${r.bookingId}', '${r.menu || '体験セッション'}', '${r.date}', '${r.time}')">この予約をキャンセルする</button>` : ''}
-    `;
+     ${!isCancelled ? '<button class="cancel-btn" onclick="confirmCancel(\'' + r.bookingId + '\', \'' + (r.menu || '体験セッション') + '\', \'' + r.date + '\', \'' + r.time + '\')">この予約をキャンセルする</button>' : ''}
     list.appendChild(card);
   });
 }
