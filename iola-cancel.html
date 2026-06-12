@@ -272,12 +272,18 @@ async function executeCancell() {
   closeConfirm();
 
   try {
-    await fetch(GAS_URL, {
+    const res = await fetch(GAS_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify({ action: 'cancel', bookingId: currentCancelId }),
     });
-    show('cancelSuccess');
+    const data = await res.json();
+
+    if (data.status === 'success') {
+      show('cancelSuccess');
+    } else {
+      alert('エラー：' + (data.message || '不明'));
+    }
   } catch(e) {
     alert('エラーが発生しました。iola.fitness098@gmail.comへご連絡ください。');
   }
