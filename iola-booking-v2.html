@@ -1415,7 +1415,7 @@ textarea.field-input {
 
   // ── GAS URL ──
   const GAS_URL = 'https://script.google.com/macros/s/AKfycbwc6LpNPIkZKOcg-0YeX3a986B31qJ28nbnF5Bd369aGS0TZXSnTsvPYc9tlDE3p4me/exec';
-
+  const SECRET_TOKEN = 'iola-secure-92xk7f';
   // ── SUBMIT (予約) ──
   async function submitBooking(type) {
     if (type === 'trial') {
@@ -1446,6 +1446,7 @@ textarea.field-input {
         location: locEl ? locEl.textContent : '',
         address: getAddress('t'),
         message: document.getElementById('t-msg').value.trim(),
+        token: SECRET_TOKEN,
       };
     } else {
       const locEl = document.querySelector('#screen5R .option-item.selected .option-name');
@@ -1462,6 +1463,7 @@ textarea.field-input {
         location: locEl ? locEl.textContent : '',
         address: getAddress('r'),
         message: document.getElementById('r-msg').value.trim(),
+      token: SECRET_TOKEN,
       };
     }
 
@@ -1548,7 +1550,7 @@ textarea.field-input {
     btn.disabled = true;
 
     try {
-      const params = new URLSearchParams({ action: 'search' });
+      const params = new URLSearchParams({ action: 'search', token: SECRET_TOKEN });
       if (bookingId) params.append('bookingId', bookingId);
       if (email) params.append('email', email);
 
@@ -1645,7 +1647,6 @@ textarea.field-input {
       const res = await fetch(GAS_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action: 'cancel', bookingId: idToCancel }),
       });
       const data = await res.json();
       if (data.status === 'success') {
