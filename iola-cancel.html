@@ -281,13 +281,14 @@ function closeConfirm() {
 
 async function executeCancell() {
   if (!currentCancelId) return;
-  closeConfirm();
+    const idToCancel = currentCancelId;
+    closeConfirm();
 
   try {
     const res = await fetch(GAS_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({ action: 'cancel', bookingId: currentCancelId }),
+             body: JSON.stringify({ action: 'cancel', bookingId: idToCancel }),
     });
     const data = await res.json();
     if (data.status === 'success') {
