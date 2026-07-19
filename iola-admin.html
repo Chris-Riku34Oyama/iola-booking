@@ -277,8 +277,7 @@ textarea.form-input { resize:none; height:80px; line-height:1.8; }
 
 <script>
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbwc6LpNPIkZKOcg-0YeX3a986B31qJ28nbnF5Bd369aGS0TZXSnTsvPYc9tlDE3p4me/exec';
-const ADMIN_PASSWORD = 'iola2024';  // ← パスワードはここで変更できます
-const SECRET_PATH = 'admin';        // ← URLに ?key=admin でもアクセス可能
+const ADMIN_PASSWORD = 'IoLa-Crystal8875';
 
 let allReservations = [];
 let deleteTarget = null;
@@ -287,7 +286,6 @@ let isEditing = false;
 // ── AUTH ──
 function checkAutoLogin() {
   const params = new URLSearchParams(location.search);
-  if (params.get('key') === SECRET_PATH) { showApp(); return; }
   if (sessionStorage.getItem('iola_admin') === '1') { showApp(); return; }
 }
 
