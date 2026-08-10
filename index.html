@@ -222,6 +222,11 @@ body {
   flex-shrink: 0;
 }
 
+.type-card.manage {
+  background: var(--bg);
+  border-style: dashed;
+}
+
 /* ── SCREEN HEADER ── */
 .screen-head {
   padding: 36px 24px 24px;
@@ -291,6 +296,9 @@ body {
   border-radius: 50%;
   background: white;
 }
+
+#extList .option-item:not(#extNoneItem) .option-radio { border-radius: 4px; }
+#extList .option-item:not(#extNoneItem).selected .option-radio::after { border-radius: 1px; }
 
 .option-text {}
 .option-name { font-size: 14px; color: var(--text); letter-spacing: 0.06em; font-weight: 300; }
@@ -417,6 +425,17 @@ body {
 }
 
 .time-item:active { background: var(--bg); }
+.time-item.off {
+  color: var(--gray-2);
+  background: var(--gray-1);
+  text-decoration: line-through;
+  pointer-events: none;
+}
+.cal-d.off {
+  color: var(--gray-2) !important;
+  text-decoration: line-through;
+  cursor: default;
+}
 
 /* ── FORM ── */
 .form-wrap { padding: 16px 20px; }
@@ -608,6 +627,52 @@ textarea.field-input {
   letter-spacing: 0.07em;
   line-height: 1.9;
 }
+
+/* ══════════════════════════════
+   ── CANCEL / SEARCH SCREENS (統合) ──
+   ══════════════════════════════ */
+.search-wrap { padding: 40px 20px 100px; }
+.search-head { text-align: center; margin-bottom: 32px; }
+.search-label { font-size: 10px; letter-spacing: .35em; color: var(--terra); text-transform: uppercase; margin-bottom: 10px; }
+.search-title { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 300; color: var(--black); letter-spacing: .06em; margin-bottom: 8px; }
+.search-sub { font-size: 12px; color: var(--text-sub); letter-spacing: .08em; line-height: 1.9; }
+
+.search-box { background: var(--white); border: 1px solid var(--gray-1); padding: 24px 20px; margin: 0 20px 16px; }
+.search-box-title { font-size: 11px; letter-spacing: .2em; color: var(--terra); text-transform: uppercase; margin-bottom: 16px; }
+
+.or-divider { display: flex; align-items: center; gap: 12px; margin: 8px 20px; }
+.or-line { flex: 1; height: 1px; background: var(--gray-1); }
+.or-text { font-size: 11px; color: var(--text-sub); letter-spacing: .15em; }
+
+.result-wrap { padding: 20px 20px 100px; }
+.result-card { background: var(--white); border: 1px solid var(--gray-1); padding: 20px; margin-bottom: 16px; }
+.result-badge { display: inline-block; font-size: 10px; letter-spacing: .2em; color: var(--white); padding: 3px 10px; margin-bottom: 14px; }
+.result-badge.trial { background: var(--terra); }
+.result-badge.regular { background: var(--black); }
+.result-badge.cancelled { background: var(--gray-3); }
+.result-row { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 0; border-bottom: 1px solid var(--gray-1); gap: 12px; }
+.result-row:last-child { border-bottom: none; }
+.result-key { font-size: 10px; letter-spacing: .18em; color: var(--text-sub); text-transform: uppercase; flex-shrink: 0; }
+.result-val { font-size: 13px; color: var(--text); text-align: right; }
+.result-num { font-family: 'Cormorant Garamond', serif; font-size: 22px; color: var(--terra); letter-spacing: .05em; }
+
+.cancel-btn { width: 100%; border: 1.5px solid var(--terra); color: var(--terra); background: var(--white); padding: 16px; font-size: 11px; letter-spacing: .25em; font-family: 'Noto Sans JP', sans-serif; font-weight: 300; cursor: pointer; transition: all .2s; margin-top: 12px; }
+.cancel-btn:active { background: var(--terra); color: var(--white); }
+
+.back-link { display: block; text-align: center; font-size: 12px; color: var(--text-sub); letter-spacing: .1em; margin-top: 20px; cursor: pointer; text-decoration: underline; }
+
+/* ── CANCEL CONFIRM (overlay) ── */
+.confirm-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 200; align-items: flex-end; }
+.confirm-overlay.show { display: flex; }
+.confirm-sheet { background: var(--white); padding: 28px 20px 40px; width: 100%; }
+.confirm-sheet-title { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 300; color: var(--black); margin-bottom: 10px; }
+.confirm-sheet-text { font-size: 13px; color: var(--text-sub); line-height: 1.9; margin-bottom: 24px; letter-spacing: .06em; }
+.confirm-sheet-date { font-size: 14px; color: var(--text); font-weight: 400; }
+.confirm-sheet-actions { display: flex; gap: 10px; }
+.confirm-yes { flex: 1; background: var(--terra); color: var(--white); border: none; padding: 16px; font-size: 11px; letter-spacing: .25em; font-family: 'Noto Sans JP', sans-serif; font-weight: 300; cursor: pointer; }
+.confirm-no { flex: 1; background: var(--white); color: var(--text); border: 1px solid var(--gray-2); padding: 16px; font-size: 11px; letter-spacing: .25em; font-family: 'Noto Sans JP', sans-serif; font-weight: 300; cursor: pointer; }
+
+.not-found { text-align: center; padding: 40px 20px; }
 </style>
 </head>
 <body>
@@ -650,7 +715,15 @@ textarea.field-input {
         <div class="type-card-left">
           <div class="type-card-en">Session</div>
           <div class="type-card-ja">通常予約</div>
-          <div class="type-card-desc">単発・月額プラン・回数券<br>各種メニューのご予約</div>
+          <div class="type-card-desc">ビジター単発・月額チケットプラン・オプション<br>各種メニューのご予約</div>
+        </div>
+        <div class="type-card-arrow">›</div>
+      </div>
+      <div class="type-card manage" onclick="goTo('screenCancelSearch')">
+        <div class="type-card-left">
+          <div class="type-card-en">Manage</div>
+          <div class="type-card-ja">予約確認・キャンセル</div>
+          <div class="type-card-desc">予約番号またはメールアドレスで<br>ご予約内容を確認・キャンセルできます</div>
         </div>
         <div class="type-card-arrow">›</div>
       </div>
@@ -668,7 +741,7 @@ textarea.field-input {
         <div class="option-radio"><span style="display:none"></span></div>
         <div class="option-text">
           <div class="option-name">体験セッション</div>
-          <div class="option-desc">60分 / カウンセリング＋トレーニング<br>当日ご入会の場合、体験料・入会金が無料になります。</div>
+          <div class="option-desc">初回限定・60分　¥3,300（税込）<br>当日ご入会で体験料は無料。入会金 ¥11,000 は即日入会で半額。</div>
         </div>
       </div>
     </div>
@@ -684,63 +757,63 @@ textarea.field-input {
       <div class="screen-title">メニューを選ぶ</div>
     </div>
 
-    <div class="section-label">Single — 単発</div>
+    <div class="section-label">Visitor — ビジター（単発）</div>
     <div class="option-list" style="padding-top:0;">
-      <div class="option-item" onclick="selectMenu(this,'パーソナルトレーニング','ウエイト・自重・コンディショニング 組み合わせ自由')">
+      <div class="option-item" onclick="selectMenu(this,'ビジター利用（単発）','60分','1回・60分　¥9,900（税込）')">
         <div class="option-radio"></div>
         <div class="option-text">
-          <div class="option-name">パーソナルトレーニング</div>
-          <div class="option-desc">ウエイト・自重・コンディショニング 組み合わせ自由</div>
-        </div>
-      </div>
-      <div class="option-item" onclick="selectMenu(this,'コンディショニング・施術','ストレッチ・施術中心のセッション')">
-        <div class="option-radio"></div>
-        <div class="option-text">
-          <div class="option-name">コンディショニング・施術</div>
-          <div class="option-desc">ストレッチ・施術中心のセッション</div>
+          <div class="option-name">ビジター利用（単発）</div>
+          <div class="option-desc">1回・60分　¥9,900（税込）</div>
         </div>
       </div>
     </div>
 
-    <div class="section-label">Monthly — 月額プラン</div>
+    <div class="section-label">Single — 単体利用</div>
     <div class="option-list" style="padding-top:0;">
-      <div class="option-item" onclick="selectMenu(this,'月額プラン① フルコース','2回 / 月　他ジム・ピラティスとの併用にも')">
+      <div class="option-item" onclick="selectMenu(this,'ストレッチ（30分）','30分','30分　¥2,200（税込）')">
         <div class="option-radio"></div>
         <div class="option-text">
-          <div class="option-name">月額プラン① フルコース</div>
-          <div class="option-desc">2回 / 月　他ジム・ピラティスとの併用にも</div>
+          <div class="option-name">ストレッチ（30分）</div>
+          <div class="option-desc">30分　¥2,200（税込）</div>
         </div>
       </div>
-      <div class="option-item" onclick="selectMenu(this,'月額プラン② フルコース','4回 / 月　運動不足解消・習慣定着にも')">
+      <div class="option-item" onclick="selectMenu(this,'コンディショニング（30分）','30分','30分　¥3,300（税込）')">
         <div class="option-radio"></div>
         <div class="option-text">
-          <div class="option-name">月額プラン② フルコース</div>
-          <div class="option-desc">4回 / 月　運動不足解消・習慣定着にも</div>
+          <div class="option-name">コンディショニング（30分）</div>
+          <div class="option-desc">30分　¥3,300（税込）</div>
         </div>
       </div>
-      <div class="option-item" onclick="selectMenu(this,'月額プラン③ フルコース','8回 / 月')">
+      <div class="option-item" onclick="selectMenu(this,'食事アドバイス（1回）','30分','1回　¥1,650（税込）')">
         <div class="option-radio"></div>
         <div class="option-text">
-          <div class="option-name">月額プラン③ フルコース</div>
-          <div class="option-desc">8回 / 月</div>
+          <div class="option-name">食事アドバイス（1回）</div>
+          <div class="option-desc">1回　¥1,650（税込）</div>
+        </div>
+      </div>
+      <div class="option-item" onclick="selectMenu(this,'トレーニングアドバイス（30分）','30分','30分　¥2,750（税込）')">
+        <div class="option-radio"></div>
+        <div class="option-text">
+          <div class="option-name">トレーニングアドバイス（30分）</div>
+          <div class="option-desc">30分　¥2,750（税込）</div>
         </div>
       </div>
     </div>
 
-    <div class="section-label">Course — 回数券</div>
+    <div class="section-label">Monthly — 月額チケットプラン</div>
     <div class="option-list" style="padding-top:0;">
-      <div class="option-item" onclick="selectMenu(this,'回数券 24回','有効期限 購入日より9ヶ月')">
+      <div class="option-item" onclick="selectMenu(this,'月4回 スタンダードプラン','60分','全身トレーニング＋食事アドバイス　¥35,200 /月（税込）')">
         <div class="option-radio"></div>
         <div class="option-text">
-          <div class="option-name">回数券 24回</div>
-          <div class="option-desc">有効期限 購入日より9ヶ月</div>
+          <div class="option-name">月4回 スタンダードプラン</div>
+          <div class="option-desc">全身トレーニング＋食事アドバイス　¥35,200 /月（税込）</div>
         </div>
       </div>
-      <div class="option-item" onclick="selectMenu(this,'回数券 48回','有効期限 購入日より9ヶ月')">
+      <div class="option-item" onclick="selectMenu(this,'月8回 プレミアムプラン','60分','全身トレーニング＋食事アドバイス　¥50,000 /月（税込）')">
         <div class="option-radio"></div>
         <div class="option-text">
-          <div class="option-name">回数券 48回</div>
-          <div class="option-desc">有効期限 購入日より9ヶ月</div>
+          <div class="option-name">月8回 プレミアムプラン</div>
+          <div class="option-desc">全身トレーニング＋食事アドバイス　¥50,000 /月（税込）</div>
         </div>
       </div>
     </div>
@@ -754,53 +827,41 @@ textarea.field-input {
   <!-- ══ SCREEN 2R: DURATION ══ -->
   <div class="screen" id="screen2R">
     <div class="screen-head">
-      <div class="screen-step-label">Step 02 — Duration</div>
-      <div class="screen-title">時間を選ぶ</div>
+      <div class="screen-step-label">Step 02 — Option</div>
+      <div class="screen-title">オプションを選ぶ</div>
     </div>
 
-    <div class="section-label">基本時間</div>
-    <div class="option-list" style="padding-top:0;">
-      <div class="option-item" onclick="selectDuration(this,'30分','ショートセッション')">
-        <div class="option-radio"></div>
-        <div class="option-text"><div class="option-name">30分</div><div class="option-desc">ショートセッション</div></div>
-      </div>
-      <div class="option-item" onclick="selectDuration(this,'60分','スタンダード')">
-        <div class="option-radio"></div>
-        <div class="option-text"><div class="option-name">60分</div><div class="option-desc">スタンダード</div></div>
-      </div>
-      <div class="option-item" onclick="selectDuration(this,'90分','60分＋30分延長')">
-        <div class="option-radio"></div>
-        <div class="option-text"><div class="option-name">90分</div><div class="option-desc">60分＋30分延長</div></div>
-      </div>
-      <div class="option-item" onclick="selectDuration(this,'120分','60分＋60分延長')">
-        <div class="option-radio"></div>
-        <div class="option-text"><div class="option-name">120分</div><div class="option-desc">60分＋60分延長</div></div>
-      </div>
-    </div>
-
-    <div class="section-label">追加オプション（任意）</div>
-    <div class="option-list" style="padding-top:0;">
+    <div class="section-label">追加オプション（任意・複数選択可）　※表示価格は税込／当日お支払い</div>
+    <div class="option-list" id="extList" style="padding-top:0;">
       <div class="option-item" id="extNoneItem" onclick="selectExt(this,'なし')" style="border-color:var(--terra);background:#FBF4EF;">
         <div class="option-radio" style="border-color:var(--terra);background:var(--terra);"><span style="content:'';width:6px;height:6px;border-radius:50%;background:white;display:block;margin:auto;"></span></div>
         <div class="option-text"><div class="option-name">オプションなし</div></div>
       </div>
-      <div class="option-item" onclick="selectExt(this,'ストレッチ 15〜20分')">
+      <div class="option-item" onclick="selectExt(this,'トレーニング +30分延長')">
         <div class="option-radio"></div>
-        <div class="option-text"><div class="option-name">ストレッチ追加　15〜20分</div></div>
+        <div class="option-text"><div class="option-name">トレーニング　+30分延長</div><div class="option-desc">+¥3,300</div></div>
       </div>
-      <div class="option-item" onclick="selectExt(this,'ストレッチ 30分')">
+      <div class="option-item" onclick="selectExt(this,'ストレッチ（30分）')">
         <div class="option-radio"></div>
-        <div class="option-text"><div class="option-name">ストレッチ追加　30分</div></div>
+        <div class="option-text"><div class="option-name">ストレッチ（30分）</div><div class="option-desc">+¥2,200</div></div>
       </div>
-      <div class="option-item" onclick="selectExt(this,'施術 20〜30分')">
+      <div class="option-item" onclick="selectExt(this,'コンディショニング（30分）')">
         <div class="option-radio"></div>
-        <div class="option-text"><div class="option-name">施術追加　20〜30分</div></div>
+        <div class="option-text"><div class="option-name">コンディショニング（30分）</div><div class="option-desc">+¥3,300</div></div>
+      </div>
+      <div class="option-item" onclick="selectExt(this,'食事アドバイス（1回）')">
+        <div class="option-radio"></div>
+        <div class="option-text"><div class="option-name">食事アドバイス（1回）</div><div class="option-desc">+¥1,650</div></div>
+      </div>
+      <div class="option-item" onclick="selectExt(this,'トレーニングアドバイス（30分）')">
+        <div class="option-radio"></div>
+        <div class="option-text"><div class="option-name">トレーニングアドバイス（30分）</div><div class="option-desc">+¥2,750</div></div>
       </div>
     </div>
 
     <div style="height:80px;"></div>
     <div class="bottom-btn-wrap">
-      <button class="bottom-btn" id="durNextBtn" disabled onclick="goTo('screen3R')">次 へ</button>
+      <button class="bottom-btn" id="durNextBtn" onclick="goTo('screen3R')">次 へ</button>
     </div>
   </div>
 
@@ -831,6 +892,7 @@ textarea.field-input {
       <div class="screen-step-label">Step 03 — Date</div>
       <div class="screen-title">日程を選ぶ</div>
     </div>
+    <div class="note-box" style="margin-top:16px;" id="rDateNote"></div>
     <div class="cal-wrap">
       <div class="cal-nav">
         <button class="cal-nav-btn" onclick="changeCalMonth('r',-1)">‹</button>
@@ -867,6 +929,8 @@ textarea.field-input {
         <div class="time-item" onclick="selectTime('t',this,'18:00')">18:00</div>
         <div class="time-item" onclick="selectTime('t',this,'19:00')">19:00</div>
         <div class="time-item" onclick="selectTime('t',this,'20:00')">20:00</div>
+        <div class="time-item" onclick="selectTime('t',this,'21:00')">21:00</div>
+        <div class="time-item" onclick="selectTime('t',this,'22:00')">22:00</div>
         <div class="time-item" onclick="selectTime('t',this,'その他')">その他</div>
       </div>
     </div>
@@ -880,23 +944,8 @@ textarea.field-input {
       <div class="screen-step-label">Step 04 — Time</div>
       <div class="screen-title">開始時間を選ぶ</div>
     </div>
-    <div class="time-wrap">
-      <div class="time-date-label" id="rTimeLabel"></div>
-      <div class="time-grid">
-        <div class="time-item" onclick="selectTime('r',this,'10:00')">10:00</div>
-        <div class="time-item" onclick="selectTime('r',this,'11:00')">11:00</div>
-        <div class="time-item" onclick="selectTime('r',this,'12:00')">12:00</div>
-        <div class="time-item" onclick="selectTime('r',this,'13:00')">13:00</div>
-        <div class="time-item" onclick="selectTime('r',this,'14:00')">14:00</div>
-        <div class="time-item" onclick="selectTime('r',this,'15:00')">15:00</div>
-        <div class="time-item" onclick="selectTime('r',this,'16:00')">16:00</div>
-        <div class="time-item" onclick="selectTime('r',this,'17:00')">17:00</div>
-        <div class="time-item" onclick="selectTime('r',this,'18:00')">18:00</div>
-        <div class="time-item" onclick="selectTime('r',this,'19:00')">19:00</div>
-        <div class="time-item" onclick="selectTime('r',this,'20:00')">20:00</div>
-        <div class="time-item" onclick="selectTime('r',this,'その他')">その他</div>
-      </div>
-    </div>
+    <div class="time-wrap" id="rTimeSections"></div>
+    <div style="height:80px;"></div>
     <div class="bottom-btn-wrap">
       <button class="bottom-btn" id="rTimeBtn" disabled onclick="goTo('screen5R')">次 へ</button>
     </div>
@@ -1021,10 +1070,10 @@ textarea.field-input {
       <div class="confirm-row"><span class="confirm-key">Name</span><span class="confirm-val" id="t-conf-name">—</span></div>
       <div class="confirm-row"><span class="confirm-key">Contact</span><span class="confirm-val" id="t-conf-contact">—</span></div>
     </div>
-    <div class="note-box">ご予約後、担当トレーナーよりご連絡いたします。<br>キャンセルは前日21時までにご連絡ください。</div>
+    <div class="note-box">この時点では<strong>仮予約</strong>のお預かりとなります。実施場所の枠が確保でき次第、担当トレーナーより確定のご連絡をいたします。<br>キャンセルは前日23時までにご連絡ください。</div>
     <div style="height:80px;"></div>
     <div class="bottom-btn-wrap">
-      <button class="bottom-btn" onclick="submitBooking('trial')">体 験 予 約 を 確 定 す る</button>
+      <button class="bottom-btn" onclick="submitBooking('trial')">仮 予 約 を 申 し 込 む</button>
     </div>
   </div>
 
@@ -1038,27 +1087,105 @@ textarea.field-input {
       <div class="confirm-row"><span class="confirm-key">Menu</span><span class="confirm-val" id="r-conf-menu">—</span></div>
       <div class="confirm-row"><span class="confirm-key">Duration</span><span class="confirm-val" id="r-conf-dur">—</span></div>
       <div class="confirm-row"><span class="confirm-key">Option</span><span class="confirm-val" id="r-conf-ext">—</span></div>
-      <div class="confirm-row"><span class="confirm-key">Date</span><span class="confirm-val" id="r-conf-date">—</span></div>
-      <div class="confirm-row"><span class="confirm-key">Time</span><span class="confirm-val" id="r-conf-time">—</span></div>
+      <div class="confirm-row"><span class="confirm-key">Schedule</span><span class="confirm-val" id="r-conf-schedule">—</span></div>
       <div class="confirm-row"><span class="confirm-key">Name</span><span class="confirm-val" id="r-conf-name">—</span></div>
       <div class="confirm-row"><span class="confirm-key">Contact</span><span class="confirm-val" id="r-conf-contact">—</span></div>
     </div>
-    <div class="note-box">ご予約後、担当トレーナーよりご連絡いたします。<br>キャンセルは前日21時までにご連絡ください。</div>
+    <div class="note-box">この時点では<strong>仮予約</strong>のお預かりとなります。実施場所の枠が確保でき次第、担当トレーナーより確定のご連絡をいたします。<br>キャンセルは前日23時までにご連絡ください。</div>
     <div style="height:80px;"></div>
     <div class="bottom-btn-wrap">
-      <button class="bottom-btn" onclick="submitBooking('regular')">予 約 を 確 定 す る</button>
+      <button class="bottom-btn" onclick="submitBooking('regular')">仮 予 約 を 申 し 込 む</button>
     </div>
   </div>
 
   <!-- SUCCESS -->
   <div class="screen" id="screenSuccess">
     <div class="success-check">✓</div>
-    <div class="success-title" id="successTitle">ご予約を受け付けました</div>
-    <div class="success-text">担当トレーナーより<br>ご連絡いたします。<br><br>どうぞお楽しみに。</div>
+    <div class="success-title" id="successTitle">仮予約を受け付けました</div>
+    <div class="success-text" id="successText">現在は<strong>仮予約</strong>としてお席をお預かりしています。<br>実施場所の枠が確保でき次第、<br>担当トレーナーより確定のご連絡をいたします。<br><br>今しばらくお待ちください。</div>
     <div class="success-brand">iola fitness</div>
   </div>
 
+  <!-- ══════════════════════════════
+       ── CANCEL: SEARCH ──
+       ══════════════════════════════ -->
+  <div class="screen" id="screenCancelSearch">
+    <div class="search-wrap">
+      <div class="search-head">
+        <div class="search-label">Reservation</div>
+        <div class="search-title">予約確認・キャンセル</div>
+        <div class="search-sub">予約番号またはメールアドレスで<br>ご予約内容を確認できます。</div>
+      </div>
+
+      <div class="note-box" style="margin:0 20px 16px;">キャンセルは前日23:59まで受け付けています。<br>それ以降はiola.fitness098@gmail.comへご連絡ください。</div>
+
+      <div class="search-box">
+        <div class="search-box-title">予約番号で検索</div>
+        <label class="field-label">予約番号</label>
+        <input type="text" class="field-input" id="searchId" placeholder="例：IOLA-20260601-001" inputmode="text">
+      </div>
+
+      <div class="or-divider">
+        <div class="or-line"></div>
+        <div class="or-text">OR</div>
+        <div class="or-line"></div>
+      </div>
+
+      <div class="search-box">
+        <div class="search-box-title">メールアドレスで検索</div>
+        <label class="field-label">メールアドレス</label>
+        <input type="email" class="field-input" id="searchEmail" placeholder="example@email.com" inputmode="email">
+      </div>
+    </div>
+    <div class="bottom-btn-wrap">
+      <button class="bottom-btn" onclick="searchReservation()">予 約 を 確 認 す る</button>
+    </div>
+  </div>
+
+  <!-- ── CANCEL: RESULT ── -->
+  <div class="screen" id="screenCancelResult">
+    <div class="result-wrap">
+      <div id="resultList"></div>
+      <span class="back-link" onclick="goTo('screenCancelSearch')">← 検索に戻る</span>
+    </div>
+  </div>
+
+  <!-- ── CANCEL: DONE ── -->
+  <div class="screen" id="screenCancelDone">
+    <div style="min-height:calc(100vh - 56px);display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:40px 32px;">
+      <div class="success-check">✓</div>
+      <div class="success-title">キャンセルが完了しました</div>
+      <div class="success-text">担当トレーナーより<br>確認のご連絡をいたします。</div>
+      <button class="message-btn" style="border:1px solid var(--gray-2);background:var(--white);color:var(--text);padding:14px 32px;font-size:11px;letter-spacing:.25em;font-family:'Noto Sans JP',sans-serif;cursor:pointer;" onclick="goTo('screen0')">トップに戻る</button>
+    </div>
+  </div>
+
+  <!-- ── CANCEL: ERROR ── -->
+  <div class="screen" id="screenCancelError">
+    <div style="min-height:calc(100vh - 56px);display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:40px 32px;">
+      <div class="success-check" style="border-color:var(--gray-3);color:var(--gray-3);">!</div>
+      <div class="success-title" id="cancelErrorTitle">予約が見つかりません</div>
+      <div class="success-text" id="cancelErrorText">入力内容をご確認のうえ、<br>再度お試しください。</div>
+      <button class="message-btn" style="border:1px solid var(--gray-2);background:var(--white);color:var(--text);padding:14px 32px;font-size:11px;letter-spacing:.25em;font-family:'Noto Sans JP',sans-serif;cursor:pointer;" onclick="goTo('screenCancelSearch')">検索に戻る</button>
+    </div>
+  </div>
+
 </div><!-- /page-wrap -->
+
+<!-- CANCEL CONFIRM OVERLAY -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-sheet">
+    <div class="confirm-sheet-title">キャンセルの確認</div>
+    <div class="confirm-sheet-text">
+      以下の予約をキャンセルします。<br>よろしいですか？
+      <div class="confirm-sheet-date" id="confirmDetail" style="margin-top:10px;"></div>
+    </div>
+    <div class="confirm-sheet-actions">
+      <button class="confirm-yes" onclick="executeCancell()">キャンセルする</button>
+      <button class="confirm-no" onclick="closeConfirm()">戻る</button>
+    </div>
+  </div>
+</div>
 
 <script>
   // ── STATE ──
@@ -1066,9 +1193,11 @@ textarea.field-input {
   const s = {
     type: null,
     menu: null, menuDesc: null,
-    duration: null, ext: 'なし',
+    duration: null, ext: 'なし', exts: [],
     date: { t: null, r: null },
     time: { t: null, r: null },
+    dates: [],          // 通常予約：選択した日付（複数）
+    slots: {},          // 通常予約：日付ごとの開始時間
     cal: {
       t: { y: today.getFullYear(), m: today.getMonth() },
       r: { y: today.getFullYear(), m: today.getMonth() }
@@ -1081,16 +1210,19 @@ textarea.field-input {
   // ── SCREEN FLOW ──
   const flowT = ['screen0','screen1T','screen2T','screen3T','screen4T','screen5T','screenSuccess'];
   const flowR = ['screen0','screen1R','screen2R','screen3R','screen4R','screen5R','screen6R','screenSuccess'];
+  // 予約確認・キャンセルの画面は進捗バー／ステップ表示の対象外にする
+  const cancelScreens = ['screenCancelSearch','screenCancelResult','screenCancelDone','screenCancelError'];
   let history = ['screen0'];
 
   const stepLabels = {
     screen1T: 'メニュー', screen2T: '日程', screen3T: '時間', screen4T: '情報', screen5T: '確認',
-    screen1R: 'メニュー', screen2R: '時間', screen3R: '日程', screen4R: '時間', screen5R: '情報', screen6R: '確認'
+    screen1R: 'メニュー', screen2R: 'オプション', screen3R: '日程', screen4R: '時間', screen5R: '情報', screen6R: '確認'
   };
 
   function goTo(id) {
     const cur = history[history.length - 1];
     document.getElementById(cur).style.display = 'none';
+    document.getElementById(cur).classList.remove('active');
     history.push(id);
     const next = document.getElementById(id);
     next.classList.add('active');
@@ -1115,15 +1247,16 @@ textarea.field-input {
     const cur = history[history.length - 1];
     const isHome = cur === 'screen0';
     const isSuccess = cur === 'screenSuccess';
+    const isCancelFlow = cancelScreens.includes(cur);
     document.getElementById('backBtn').classList.toggle('show', !isHome && !isSuccess);
 
     const flow = s.type === 'trial' ? flowT : flowR;
     const idx = flow.indexOf(cur);
     const total = flow.length - 2;
 
-    document.getElementById('stepIndicator').classList.toggle('show', !isHome && !isSuccess);
+    document.getElementById('stepIndicator').classList.toggle('show', !isHome && !isSuccess && !isCancelFlow);
 
-    if (!isHome && !isSuccess) {
+    if (!isHome && !isSuccess && !isCancelFlow) {
       const dots = document.querySelectorAll('.step-dot');
       dots.forEach((d, i) => {
         d.classList.remove('active','done');
@@ -1133,7 +1266,10 @@ textarea.field-input {
       document.getElementById('stepText').textContent = stepLabels[cur] || '';
     }
 
-    const pct = isHome ? 0 : isSuccess ? 100 : Math.round((idx / (flow.length - 1)) * 100);
+    let pct;
+    if (isHome || isCancelFlow) pct = 0;
+    else if (isSuccess) pct = 100;
+    else pct = Math.round((idx / (flow.length - 1)) * 100);
     document.getElementById('progressBar').style.width = pct + '%';
   }
 
@@ -1144,7 +1280,7 @@ textarea.field-input {
   }
 
   // ── MENU ──
-  function selectMenu(el, name, desc) {
+  function selectMenu(el, name, dur, desc) {
     el.closest('.option-list') && el.closest('.option-list').querySelectorAll('.option-item').forEach(i => {
       i.classList.remove('selected');
       i.querySelector('.option-radio').style.cssText = '';
@@ -1155,33 +1291,35 @@ textarea.field-input {
       i.querySelector('.option-radio').style.cssText = '';
     });
     el.classList.add('selected');
+    if (s.menu !== name) { s.dates = []; s.slots = {}; }
     s.menu = name; s.menuDesc = desc;
+    s.duration = dur || '60分';
     document.getElementById('menuNextBtn').disabled = false;
   }
 
   // ── DURATION ──
-  function selectDuration(el, dur, desc) {
-    document.querySelectorAll('#screen2R .option-item').forEach(i => {
-      if (['30分','60分','90分','120分'].some(x => i.querySelector('.option-name').textContent.includes(x))) {
-        i.classList.remove('selected');
-        i.querySelector('.option-radio').style.cssText = '';
-      }
-    });
-    el.classList.add('selected');
-    s.duration = dur;
-    document.getElementById('durNextBtn').disabled = false;
-  }
-
   function selectExt(el, ext) {
-    document.querySelectorAll('#screen2R .option-item').forEach(i => {
-      const name = i.querySelector('.option-name').textContent;
-      if (name.includes('オプションなし') || name.includes('ストレッチ') || name.includes('施術')) {
-        i.classList.remove('selected');
-        i.querySelector('.option-radio').style.cssText = '';
-      }
+    const noneItem = document.getElementById('extNoneItem');
+    if (ext === 'なし') {
+      s.exts = [];
+    } else {
+      const i = s.exts.indexOf(ext);
+      if (i === -1) s.exts.push(ext); else s.exts.splice(i, 1);
+    }
+    // repaint
+    document.querySelectorAll('#extList .option-item').forEach(item => {
+      item.classList.remove('selected');
+      item.querySelector('.option-radio').style.cssText = '';
     });
-    el.classList.add('selected');
-    s.ext = ext;
+    if (s.exts.length === 0) {
+      noneItem.classList.add('selected');
+    } else {
+      document.querySelectorAll('#extList .option-item').forEach(item => {
+        const val = (item.getAttribute('onclick') || '').match(/selectExt\(this,'([^']*)'\)/);
+        if (val && s.exts.includes(val[1])) item.classList.add('selected');
+      });
+    }
+    s.ext = s.exts.length ? s.exts.join(' / ') : 'なし';
   }
 
   // ── RADIO ──
@@ -1194,6 +1332,63 @@ textarea.field-input {
   }
 
   // ── CALENDAR ──
+  // ── 空き状況（管理画面のブロック＋既存予約） ──
+  let avail = { blocks: [], booked: [], loaded: false };
+
+  async function loadAvailability() {
+    try {
+      const res = await fetch(`${GAS_URL}?action=getAvailability&token=${GAS_TOKEN}`);
+      const data = await res.json();
+      avail.blocks = data.blocks || [];
+      avail.booked = data.booked || [];
+    } catch (e) {
+      avail.blocks = []; avail.booked = [];
+    }
+    avail.loaded = true;
+    renderCal('t'); renderCal('r');
+  }
+
+  function isDateOff(ds, dow) {
+    // 終日休業の曜日
+    if (avail.blocks.some(b => b.type === 'weekday' && String(b.value) === String(dow) && b.times === 'all')) return true;
+    if (avail.blocks.some(b => b.type === 'date' && b.value === ds && b.times === 'all')) return true;
+    // その日の枠がすべて埋まっている場合も締め切り扱い
+    const off = offTimes(ds);
+    return SLOT_TIMES.every(t => off.includes(t));
+  }
+
+  function offTimes(ds) {
+    const out = [];
+    const dow = new Date(ds + 'T00:00:00').getDay();
+    avail.blocks.forEach(b => {
+      // 日付指定のブロック
+      if (b.type === 'date' && b.value === ds && b.times !== 'all') {
+        b.times.split(',').forEach(t => out.push(t.trim()));
+      }
+      // 曜日ごとの時間ブロック
+      if (b.type === 'weekday' && String(b.value) === String(dow) && b.times !== 'all') {
+        b.times.split(',').forEach(t => out.push(t.trim()));
+      }
+    });
+    avail.booked.forEach(b => { if (b.date === ds) out.push(b.time); });
+    return out;
+  }
+
+  const SLOT_TIMES = ['10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00'];
+
+  function applyTimeAvailability(key, ds) {
+    const gridId = key === 't' ? 'screen3T' : 'screen4R';
+    const off = offTimes(ds);
+    document.querySelectorAll(`#${gridId} .time-item`).forEach(el => {
+      const t = el.textContent.trim();
+      const isOff = off.includes(t);
+      el.classList.toggle('off', isOff);
+      if (isOff) el.classList.remove('selected');
+    });
+    s.time[key] = null;
+    document.getElementById(key === 't' ? 'tTimeBtn' : 'rTimeBtn').disabled = true;
+  }
+
   function renderCal(key) {
     const c = s.cal[key];
     document.getElementById(`${key}CalLabel`).textContent = `${MJa[c.m]} ${c.y}`;
@@ -1213,11 +1408,15 @@ textarea.field-input {
       if (dow === 0) cls += ' sun'; if (dow === 6) cls += ' sat';
       const isPast = date < new Date(today.getFullYear(), today.getMonth(), today.getDate());
       if (isPast) cls += ' past';
+      const dsTmp = `${c.y}-${String(c.m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const isOff = !isPast && isDateOff(dsTmp, dow);
+      if (isOff) cls += ' off';
       if (date.toDateString() === today.toDateString()) cls += ' today';
       const ds = `${c.y}-${String(c.m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-      if (s.date[key] === ds) cls += ' selected';
+      const chosen = key === 't' ? (s.date.t === ds) : s.dates.includes(ds);
+      if (chosen) cls += ' selected';
       el.className = cls; el.textContent = d;
-      if (!isPast) el.onclick = () => selectDate(key, ds, d, date);
+      if (!isPast && !isOff) el.onclick = () => selectDate(key, ds, d, date);
       grid.appendChild(el);
     }
   }
@@ -1229,12 +1428,91 @@ textarea.field-input {
     renderCal(key);
   }
 
+  // メニューごとに選べる日数の上限
+  function maxDates() {
+    if (!s.menu) return 1;
+    if (s.menu.includes('月4回')) return 4;
+    if (s.menu.includes('月8回')) return 8;
+    return 1;
+  }
+
+  function updateDateNote() {
+    const max = maxDates();
+    const el = document.getElementById('rDateNote');
+    if (max === 1) {
+      el.innerHTML = 'ご希望の日付をタップしてください。<br>別の日をタップすると選び直せます。';
+    } else {
+      const rest = max - s.dates.length;
+      el.innerHTML = `${s.menu}は<strong>最大${max}日分</strong>まとめてご予約いただけます`
+        + `（選択中 ${s.dates.length}日 / 残り ${rest}日）。<br>日付をタップして追加、もう一度タップで解除できます。`;
+    }
+  }
+
   function selectDate(key, ds, d, date) {
-    s.date[key] = ds;
-    const label = `${s.cal[key].y}年 ${MJa[s.cal[key].m]} ${d}日（${DJa[date.getDay()]}）`;
-    document.getElementById(`${key}TimeLabel`).textContent = label;
-    document.getElementById(key === 't' ? 'tDateBtn' : 'rDateBtn').disabled = false;
-    renderCal(key);
+    if (key === 't') {
+      s.date.t = ds;
+      document.getElementById('tTimeLabel').textContent =
+        `${s.cal.t.y}年 ${MJa[s.cal.t.m]} ${d}日（${DJa[date.getDay()]}）`;
+      document.getElementById('tDateBtn').disabled = false;
+      applyTimeAvailability('t', ds);
+      renderCal('t');
+      return;
+    }
+    // 通常予約：プランに応じた複数選択
+    const max = maxDates();
+    const i = s.dates.indexOf(ds);
+    if (i >= 0) {
+      s.dates.splice(i, 1);
+      delete s.slots[ds];
+    } else if (max === 1) {
+      s.dates = [ds];
+      s.slots = {};
+    } else {
+      if (s.dates.length >= max) {
+        alert(`${s.menu}でご予約いただけるのは${max}日までです。\n変更する場合は、選択済みの日付をもう一度タップして解除してください。`);
+        return;
+      }
+      s.dates.push(ds);
+    }
+    s.dates.sort();
+    document.getElementById('rDateBtn').disabled = s.dates.length === 0;
+    updateDateNote();
+    renderCal('r');
+  }
+
+  // ── 日付ごとの時間選択画面を組み立てる ──
+  function buildTimeSections() {
+    const wrap = document.getElementById('rTimeSections');
+    wrap.innerHTML = s.dates.map(ds => {
+      const off = offTimes(ds);
+      const [y,m,d] = ds.split('-');
+      const dt = new Date(Number(y), Number(m)-1, Number(d));
+      const label = `${y}年 ${MJa[Number(m)-1]} ${Number(d)}日（${DJa[dt.getDay()]}）`;
+      const items = SLOT_TIMES.concat(['その他']).map(t => {
+        const isOff = off.includes(t);
+        const sel = s.slots[ds] === t ? ' selected' : '';
+        return `<div class="time-item${isOff ? ' off' : ''}${sel}" onclick="pickSlot('${ds}',this,'${t}')">${t}</div>`;
+      }).join('');
+      return `<div style="margin-bottom:26px;">
+        <div class="time-date-label">${label}</div>
+        <div class="time-grid">${items}</div>
+      </div>`;
+    }).join('');
+    updateTimeBtn();
+  }
+
+  function pickSlot(ds, el, time) {
+    el.parentElement.querySelectorAll('.time-item').forEach(i => i.classList.remove('selected'));
+    el.classList.add('selected');
+    s.slots[ds] = time;
+    updateTimeBtn();
+  }
+
+  function updateTimeBtn() {
+    const done = s.dates.length > 0 && s.dates.every(ds => s.slots[ds]);
+    const btn = document.getElementById('rTimeBtn');
+    btn.disabled = !done;
+    btn.textContent = done || s.dates.length <= 1 ? '次 へ' : `残り ${s.dates.filter(ds => !s.slots[ds]).length} 日分`;
   }
 
   // ── TIME ──
@@ -1256,22 +1534,25 @@ textarea.field-input {
       const c = document.getElementById('t-phone').value || document.getElementById('t-email').value;
       document.getElementById('t-conf-contact').textContent = c || '—';
     } else {
-      const [y,m,d] = s.date.r.split('-');
       document.getElementById('r-conf-menu').textContent = s.menu;
       document.getElementById('r-conf-dur').textContent = s.duration;
       document.getElementById('r-conf-ext').textContent = s.ext;
-      document.getElementById('r-conf-date').textContent = `${y}年 ${MJa[parseInt(m)-1]} ${parseInt(d)}日`;
-      document.getElementById('r-conf-time').textContent = s.time.r;
+      document.getElementById('r-conf-schedule').innerHTML = s.dates.map(ds => {
+        const [y,m,d] = ds.split('-');
+        const dt = new Date(Number(y), Number(m)-1, Number(d));
+        return `${Number(m)}月${Number(d)}日（${DJa[dt.getDay()]}） ${s.slots[ds]}`;
+      }).join('<br>');
       document.getElementById('r-conf-name').textContent = document.getElementById('r-name').value || '—';
       const c = document.getElementById('r-phone').value || document.getElementById('r-email').value;
       document.getElementById('r-conf-contact').textContent = c || '—';
     }
   }
 
-  // ── GAS URL ── ※ デプロイ後にURLを貼り付けてください
+  // ── GAS URL ──
   const GAS_URL = 'https://script.google.com/macros/s/AKfycbwc6LpNPIkZKOcg-0YeX3a986B31qJ28nbnF5Bd369aGS0TZXSnTsvPYc9tlDE3p4me/exec';
+  const GAS_TOKEN = 'iola-secure-92xk7f';   // ← GAS側の SECRET_TOKEN と同じ値
 
-  // ── SUBMIT ──
+  // ── SUBMIT (予約) ──
   async function submitBooking(type) {
     if (type === 'trial') {
       if (!document.getElementById('t-name').value.trim()) { alert('お名前を入力してください。'); return; }
@@ -1279,6 +1560,11 @@ textarea.field-input {
     } else {
       if (!document.getElementById('r-name').value.trim()) { alert('お名前を入力してください。'); return; }
       if (!document.getElementById('r-phone').value.trim() && !document.getElementById('r-email').value.trim()) { alert('連絡先を入力してください。'); return; }
+    }
+
+    if (type === 'regular') {
+      if (!s.dates.length) { alert('日程を選択してください。'); return; }
+      if (!s.dates.every(ds => s.slots[ds])) { alert('すべての日程で開始時間を選択してください。'); return; }
     }
 
     // ボタンを送信中に変更
@@ -1290,7 +1576,6 @@ textarea.field-input {
     let data;
     if (type === 'trial') {
       const locEl = document.querySelector('#screen4T .option-item.selected .option-name');
-      const studioEl = document.querySelector('#t-studio .option-item.selected .option-name');
       data = {
         type: 'trial',
         menu: '体験セッション',
@@ -1310,8 +1595,6 @@ textarea.field-input {
         menu: s.menu,
         duration: s.duration,
         ext: s.ext,
-        date: formatDate('r'),
-        time: s.time.r,
         name: document.getElementById('r-name').value.trim(),
         phone: document.getElementById('r-phone').value.trim(),
         email: document.getElementById('r-email').value.trim(),
@@ -1321,21 +1604,33 @@ textarea.field-input {
       };
     }
 
-    // GASに送信
-    try {
-      await fetch(GAS_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'text/plain' },
-        body: JSON.stringify(data),
-      });
-    } catch(e) {
-      console.log('送信エラー:', e);
+    // GASに送信（通常予約は日程ごとに1件ずつ）
+    const entries = type === 'trial'
+      ? [{ date: formatDate('t'), time: s.time.t }]
+      : s.dates.map(ds => ({ date: formatDateStr(ds), time: s.slots[ds] }));
+
+    for (let i = 0; i < entries.length; i++) {
+      if (entries.length > 1) btn.textContent = `送 信 中 …  ${i+1} / ${entries.length}`;
+      try {
+        await fetch(GAS_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ ...data, ...entries[i], token: GAS_TOKEN }),
+        });
+      } catch(e) {
+        console.log('送信エラー:', e);
+      }
+      if (i < entries.length - 1) await new Promise(r => setTimeout(r, 400));
     }
 
-    document.getElementById('successTitle').textContent =
-      type === 'trial' ? '体験予約を受け付けました' : 'ご予約を受け付けました';
+    document.getElementById('successTitle').textContent = '仮予約を受け付けました';
     goTo('screenSuccess');
+  }
+
+  function formatDateStr(ds) {
+    const [y,m,d] = ds.split('-');
+    const date = new Date(parseInt(y), parseInt(m)-1, parseInt(d));
+    return `${y}年 ${MJa[parseInt(m)-1]} ${parseInt(d)}日（${DJa[date.getDay()]}）`;
   }
 
   function formatDate(key) {
@@ -1362,6 +1657,8 @@ textarea.field-input {
   // ── CONFIRM INTERCEPT ──
   const origGoTo = goTo;
   window.goTo = function(id) {
+    if (id === 'screen3R') updateDateNote();
+    if (id === 'screen4R') buildTimeSections();
     if (id === 'screen5T') updateConfirm('trial');
     if (id === 'screen6R') updateConfirm('regular');
     origGoTo(id);
@@ -1386,11 +1683,143 @@ textarea.field-input {
     if (el) { el.style.display = 'none'; const input = el.querySelector('input'); if(input) input.value=''; }
   }
 
+  // ══════════════════════════════
+  // ── CANCEL / 予約確認 ロジック ──
+  // ══════════════════════════════
+  let currentCancelId = null;
+
+  async function searchReservation() {
+    const bookingId = document.getElementById('searchId').value.trim();
+    const email = document.getElementById('searchEmail').value.trim();
+
+    if (!bookingId && !email) {
+      alert('予約番号またはメールアドレスを入力してください。');
+      return;
+    }
+
+    const btn = document.querySelector('#screenCancelSearch .bottom-btn');
+    btn.textContent = '検 索 中 …';
+    btn.disabled = true;
+
+    try {
+      const params = new URLSearchParams({ action: 'search', token: GAS_TOKEN });
+      if (bookingId) params.append('bookingId', bookingId);
+      if (email) params.append('email', email);
+
+      const res = await fetch(`${GAS_URL}?${params.toString()}`);
+      const data = await res.json();
+
+      if (data.status === 'success' && data.reservations && data.reservations.length > 0) {
+        renderResults(data.reservations);
+        goTo('screenCancelResult');
+      } else {
+        document.getElementById('cancelErrorTitle').textContent = '予約が見つかりません';
+        document.getElementById('cancelErrorText').innerHTML = '入力内容をご確認のうえ、<br>再度お試しください。';
+        goTo('screenCancelError');
+      }
+    } catch(e) {
+      document.getElementById('cancelErrorTitle').textContent = '通信エラー';
+      document.getElementById('cancelErrorText').innerHTML = 'しばらく経ってから<br>再度お試しください。';
+      goTo('screenCancelError');
+    } finally {
+      btn.textContent = '予 約 を 確 認 す る';
+      btn.disabled = false;
+    }
+  }
+
+  function renderResults(reservations) {
+    const list = document.getElementById('resultList');
+    list.innerHTML = '';
+
+    reservations.forEach(function(r) {
+      const isCancelled = r.status === 'キャンセル';
+      const isTrial = r.type === 'trial';
+
+      const card = document.createElement('div');
+      card.className = 'result-card';
+
+      const badge = document.createElement('span');
+      badge.className = 'result-badge ' + (isCancelled ? 'cancelled' : isTrial ? 'trial' : 'regular');
+      badge.textContent = isCancelled ? 'キャンセル済み' : isTrial ? 'Trial' : 'Session';
+      card.appendChild(badge);
+
+      const rows = [
+        ['予約番号', r.bookingId || '—', true],
+        ['Menu', r.menu || '体験セッション', false],
+        ['Date', r.date || '—', false],
+        ['Time', r.time || '—', false],
+        ['Name', r.name || '—', false],
+      ];
+
+      rows.forEach(function(row) {
+        const div = document.createElement('div');
+        div.className = 'result-row';
+        const key = document.createElement('span');
+        key.className = 'result-key';
+        key.textContent = row[0];
+        const val = document.createElement('span');
+        val.className = 'result-val' + (row[2] ? ' result-num' : '');
+        val.textContent = row[1];
+        div.appendChild(key);
+        div.appendChild(val);
+        card.appendChild(div);
+      });
+
+      if (!isCancelled) {
+        const btn = document.createElement('button');
+        btn.className = 'cancel-btn';
+        btn.textContent = 'この予約をキャンセルする';
+        btn.addEventListener('click', function() {
+          confirmCancel(r.bookingId, r.menu || '体験セッション', r.date, r.time);
+        });
+        card.appendChild(btn);
+      }
+
+      list.appendChild(card);
+    });
+  }
+
+  function confirmCancel(id, menu, date, time) {
+    currentCancelId = id;
+    document.getElementById('confirmDetail').textContent = menu + '　' + date + '　' + time;
+    document.getElementById('confirmOverlay').classList.add('show');
+  }
+
+  function closeConfirm() {
+    document.getElementById('confirmOverlay').classList.remove('show');
+    currentCancelId = null;
+  }
+
+  async function executeCancell() {
+    if (!currentCancelId) return;
+    const idToCancel = currentCancelId;
+    closeConfirm();
+
+    try {
+      const res = await fetch(GAS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'cancel', bookingId: idToCancel, token: GAS_TOKEN }),
+      });
+      const data = await res.json();
+      if (data.status === 'success') {
+        goTo('screenCancelDone');
+      } else {
+        alert('エラー：' + (data.message || '不明'));
+      }
+    } catch(e) {
+      alert('エラーが発生しました。iola.fitness098@gmail.comへご連絡ください。');
+    }
+  }
+
   // ── INIT ──
   renderCal('t');
   renderCal('r');
-  // ext none item radio style
-  document.getElementById('extNoneItem').querySelector('.option-radio').innerHTML = '<span style="width:6px;height:6px;border-radius:50%;background:white;display:block;margin:auto;"></span>';
+  loadAvailability();
+  // ext: default = none selected
+  document.getElementById('extNoneItem').classList.add('selected');
+  document.getElementById('extNoneItem').style.cssText = '';
+  document.getElementById('extNoneItem').querySelector('.option-radio').style.cssText = '';
 </script>
 </body>
 </html>
