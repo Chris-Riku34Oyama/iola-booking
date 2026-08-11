@@ -791,11 +791,11 @@ textarea.field-input {
           <div class="option-desc">1回　¥1,650（税込）</div>
         </div>
       </div>
-      <div class="option-item" onclick="selectMenu(this,'トレーニングアドバイス（30分）','30分','30分　¥2,750（税込）')">
+      <div class="option-item" onclick="selectMenu(this,'トレーニングアドバイス（1回）','30分','1回　¥2,750（税込）')">
         <div class="option-radio"></div>
         <div class="option-text">
-          <div class="option-name">トレーニングアドバイス（30分）</div>
-          <div class="option-desc">30分　¥2,750（税込）</div>
+          <div class="option-name">トレーニングアドバイス（1回）</div>
+          <div class="option-desc">1回　¥2,750（税込）</div>
         </div>
       </div>
     </div>
@@ -853,9 +853,9 @@ textarea.field-input {
         <div class="option-radio"></div>
         <div class="option-text"><div class="option-name">食事アドバイス（1回）</div><div class="option-desc">+¥1,650</div></div>
       </div>
-      <div class="option-item" onclick="selectExt(this,'トレーニングアドバイス（30分）')">
+      <div class="option-item" onclick="selectExt(this,'トレーニングアドバイス（1回）')">
         <div class="option-radio"></div>
-        <div class="option-text"><div class="option-name">トレーニングアドバイス（30分）</div><div class="option-desc">+¥2,750</div></div>
+        <div class="option-text"><div class="option-name">トレーニングアドバイス（1回）</div><div class="option-desc">+¥2,750</div></div>
       </div>
     </div>
 
@@ -961,6 +961,10 @@ textarea.field-input {
       <div class="form-field"><label class="field-label">お名前</label><input type="text" class="field-input" id="t-name" placeholder="山田 花子"></div>
       <div class="form-field"><label class="field-label">電話番号</label><input type="tel" class="field-input" id="t-phone" placeholder="090-0000-0000" inputmode="tel"></div>
       <div class="form-field"><label class="field-label">メールアドレス</label><input type="email" class="field-input" id="t-email" placeholder="example@email.com" inputmode="email"></div>
+      <label style="display:flex;align-items:center;gap:8px;margin-top:14px;font-size:12px;color:var(--gray-4);cursor:pointer;">
+        <input type="checkbox" id="t-remember" checked style="accent-color:var(--terra);width:16px;height:16px;">
+        この端末に情報を保存して次回から自動入力する
+      </label>
       <div class="form-field">
         <label class="field-label">場所のご希望</label>
         <div class="option-list" style="padding:0;gap:6px;">
@@ -1013,6 +1017,11 @@ textarea.field-input {
       <div class="form-field"><label class="field-label">お名前</label><input type="text" class="field-input" id="r-name" placeholder="山田 花子"></div>
       <div class="form-field"><label class="field-label">電話番号</label><input type="tel" class="field-input" id="r-phone" placeholder="090-0000-0000" inputmode="tel"></div>
       <div class="form-field"><label class="field-label">メールアドレス</label><input type="email" class="field-input" id="r-email" placeholder="example@email.com" inputmode="email"></div>
+      <label style="display:flex;align-items:center;gap:8px;margin-top:14px;font-size:12px;color:var(--gray-4);cursor:pointer;">
+        <input type="checkbox" id="r-remember" checked style="accent-color:var(--terra);width:16px;height:16px;">
+        この端末に情報を保存して次回から自動入力する
+      </label>
+      <div style="margin-top:8px;"><span id="clearSaved" style="font-size:11px;color:var(--gray-3);text-decoration:underline;cursor:pointer;display:none;">保存した情報を削除する</span></div>
       <div class="form-field">
         <label class="field-label">場所のご希望</label>
         <div class="option-list" style="padding:0;gap:6px;">
@@ -1550,7 +1559,7 @@ textarea.field-input {
 
   // ── GAS URL ──
   const GAS_URL = 'https://script.google.com/macros/s/AKfycbwc6LpNPIkZKOcg-0YeX3a986B31qJ28nbnF5Bd369aGS0TZXSnTsvPYc9tlDE3p4me/exec';
-  const GAS_TOKEN = 'iola-secure-92xk7f';   // ← GAS側の SECRET_TOKEN と同じ値
+  const GAS_TOKEN = 'iola-pub-f01resatyudt';   // 予約ページ用（公開されても顧客一覧は取得できません）
 
   // ── SUBMIT (予約) ──
   async function submitBooking(type) {
@@ -1561,6 +1570,8 @@ textarea.field-input {
       if (!document.getElementById('r-name').value.trim()) { alert('お名前を入力してください。'); return; }
       if (!document.getElementById('r-phone').value.trim() && !document.getElementById('r-email').value.trim()) { alert('連絡先を入力してください。'); return; }
     }
+
+    saveCustomer(type === 'trial' ? 't' : 'r');
 
     if (type === 'regular') {
       if (!s.dates.length) { alert('日程を選択してください。'); return; }
@@ -1811,6 +1822,56 @@ textarea.field-input {
       alert('エラーが発生しました。iola.fitness098@gmail.comへご連絡ください。');
     }
   }
+
+
+  // ══════════ お客様情報の保存・自動入力 ══════════
+  const SAVE_KEY = 'iola_customer';
+
+  function saveCustomer(key) {
+    const chk = document.getElementById(`${key}-remember`);
+    if (!chk || !chk.checked) return;
+    try {
+      localStorage.setItem(SAVE_KEY, JSON.stringify({
+        name: document.getElementById(`${key}-name`).value.trim(),
+        phone: document.getElementById(`${key}-phone`).value.trim(),
+        email: document.getElementById(`${key}-email`).value.trim(),
+      }));
+    } catch (e) {}
+  }
+
+  function loadCustomer() {
+    let d = null;
+    try { d = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null'); } catch (e) {}
+    if (!d) return;
+    ['t', 'r'].forEach(key => {
+      const n = document.getElementById(`${key}-name`);
+      const p = document.getElementById(`${key}-phone`);
+      const m = document.getElementById(`${key}-email`);
+      if (n && !n.value) n.value = d.name || '';
+      if (p && !p.value) p.value = d.phone || '';
+      if (m && !m.value) m.value = d.email || '';
+    });
+    const clr = document.getElementById('clearSaved');
+    if (clr) clr.style.display = 'inline';
+  }
+
+  const clearEl = document.getElementById('clearSaved');
+  if (clearEl) {
+    clearEl.onclick = () => {
+      if (!confirm('この端末に保存したお名前・電話番号・メールアドレスを削除します。よろしいですか？')) return;
+      try { localStorage.removeItem(SAVE_KEY); } catch (e) {}
+      ['t', 'r'].forEach(key => {
+        ['name', 'phone', 'email'].forEach(f => {
+          const el = document.getElementById(`${key}-${f}`);
+          if (el) el.value = '';
+        });
+      });
+      clearEl.style.display = 'none';
+      alert('保存した情報を削除しました。');
+    };
+  }
+
+  loadCustomer();
 
   // ── INIT ──
   renderCal('t');
